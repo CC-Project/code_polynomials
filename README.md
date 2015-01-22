@@ -1,6 +1,9 @@
 Library for error detection using polynomials
 =============================================
 
+Todo
+====
+Use several BASE_l.  
 
 Notations
 =========

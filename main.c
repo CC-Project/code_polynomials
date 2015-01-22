@@ -8,11 +8,12 @@ int main(int argc, char *argv[])
 
     struct Data* coded_message = poly_encode(message);
     struct Data* decoded_message = poly_decode(coded_message);
+    data_show(message); data_show(coded_message);
     printf("%d", poly_check(coded_message));
 
     data_free(message);
     data_free(coded_message);
-    data_free(decoded_message);
+    //data_free(decoded_message);
 
     return EXIT_SUCCESS;
 }
