@@ -56,12 +56,12 @@
     {
         #ifdef __AVR__
             uart_tx_str("0b")
-            for(int8_t i = 7; i >= 0; i--)
-                uart_tx_char(((var & (1 << i)) >> i) + 0x30 ); //0x30 is the offset needed to print the appropriate number
+            for(int8_t i = 0; i < 7; i++)
+                uart_tx_char((var >> i) & 1 + 0x30 ); //0x30 is the offset needed to print the appropriate number
         #else
             printf("0b");
-            for(int8_t i = 7; i >= 0; i--)
-                printf( "%d", (var & (1 << i)) >> i );
+            for(int8_t i = 0; i <7; i++)
+                printf( "%d", (var >> i) & 1 );
         #endif
     }
 #endif

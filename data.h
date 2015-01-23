@@ -14,13 +14,9 @@
 
     // Data operations
     uint8_t data_get(uint16_t n, struct Data* d);               //Returns the n-th data stored. Starting from 0.
-    void data_set(uint16_t n, uint8_t data, struct Data* d);    //Sets the n-th block of d to data
+    void data_set(uint16_t n, uint8_t data, struct Data* d);    //Sets the n-th block of d to data={0,1}
     void data_delete(uint16_t n, struct Data* d);               // Delete the n-th block of d
 
-    uint8_t data_getBit(uint16_t n, struct Data* d);
-    uint8_t data_getSequence(uint16_t n, uint8_t l, struct Data* d);
-    void data_setBit(uint16_t n, uint8_t data, struct Data* d);
-    void data_setSequence(uint16_t n, uint8_t l, uint8_t data, struct Data* d);
 
     #ifdef DEBUG
         // Prints out a data structure. Not adapted to AVR.

@@ -20,7 +20,4 @@
     #define K 2
     #define N 5
 
-    #define BASE_L 1
-    #define BASE_D (1 << BASE_L)
-
 #endif // CONFIG_H
