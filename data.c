@@ -33,7 +33,6 @@ uint8_t data_get(uint16_t n, struct Data* d)
 {
     if(n < d->data_number)
     {
-        //printf(" %d-", n - 8*(n/8));
         return ( d->data_array[n/8] >> ( n - 8*(n/8) ) ) & 1;
     }
     else
@@ -89,8 +88,8 @@ void data_delete(uint16_t n, struct Data* d)
         #ifdef __AVR__
 
         #else
-            printf("\nShow %d data :\n( ", d->data_number);
-            for(uint16_t i = 0; i < d->data_number; i++)
+             printf("\nShow %d data :\n( ", d->data_number);
+            for(uint16_t i = d->data_number-1; i  < d->data_number; i--)
             {
                 data = data_get(i, d);
                 printf("%d ", data);

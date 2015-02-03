@@ -16,8 +16,9 @@
 	#endif
 
     //Generator polynomial
-    #define G 00111
-    #define K 2
+    #define G 0b111
+    #define M 2 //Length of the generator polynomial G.
     #define N 5
+    #define K N-M //Length of the encoded words
 
 #endif // CONFIG_H

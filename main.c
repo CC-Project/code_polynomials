@@ -6,10 +6,13 @@ int main(int argc, char *argv[])
     data_set(0, 1, message);
     data_set(1, 1, message);
     data_show(message);
-    struct Data* mul = poly_encode(message);
-    data_show(mul);
-    data_free(mul);
+
+    struct Data* res = poly_mul(message);
+    data_show(res);
+
+    data_free(res);
     data_free(message);
+
     /*
     struct Data* coded_message = poly_encode(message);
     struct Data* decoded_message = poly_decode(coded_message);
