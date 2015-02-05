@@ -2,16 +2,20 @@
 
 int main(int argc, char *argv[])
 {
-    struct Data* message = data_generate(K);
+    struct Data* generator = generator_to_poly();
+
+    struct Data* message = data_generate(N);
     data_set(0, 1, message);
-    data_set(1, 1, message);
+    data_set(3, 1, message);
     data_show(message);
 
-    struct Data* res = poly_mul(message);
-    data_show(res);
+    struct Data* codeword = poly_div(message);
+    data_show(codeword);
 
-    data_free(res);
+    data_free(codeword);
+    data_free(generator);
     data_free(message);
+    //(x+1)(x^2+x+1) = X^3+X^2+X +X^2+X+1 = X^3 +1
 
     /*
     struct Data* coded_message = poly_encode(message);

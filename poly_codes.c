@@ -2,7 +2,7 @@
 
 struct Data* data_copy(struct Data* word)
 {
-    struct Data* copy = data_generate(word->data_number);
+    struct Data* copy = data_generate(N);
     for(uint16_t i = 0; i<word->data_number; i++)
         data_set(i, data_get(i, word), copy);
     return copy;
@@ -21,13 +21,20 @@ void data_rshift(struct Data** word, uint16_t n)
     *word = message_mul;
 }
 
+struct Data* generator_to_poly(void)
+{
+    struct Data* poly = data_generate(N);
+    for(uint16_t i = 0; i<M+1; i++)
+        data_set(i, G&(1<<i), poly);
+    return poly;
+}
+
 uint16_t poly_deg(struct Data* poly)
 {
     uint16_t n = poly->data_number;
-    uint8_t m = 1;
-    while( n > 0 && m){
-        if(data_get(n-1, poly) == 1)
-        {
+    uint8_t m = 1; //Invariant de boucle.
+    while( n > 1 && m){ //n>1 to work with the zero polynomial
+        if(data_get(n-1, poly) == 1){
             m = 0;
         }
         else{
@@ -79,18 +86,34 @@ struct Data* poly_mul(struct Data* poly)
 
 struct Data* poly_div(struct Data* poly)
 {
+    /*
+        a = G*q + r
+    */
     struct Data* q = data_generate(N);
-    struct Data* r = data_copy(poly);
+    struct Data* a = data_copy(poly);
+    uint16_t deg_a = poly_deg(a);
+    struct Data* generator = generator_to_poly();
 
-    uint16_t deg_r = poly_deg(r);
-    while( deg_r != 0 && deg_r >= poly_deg(poly))
+    while( deg_a >= M)
     {
-
+        if(deg_a == M)
+        {
+            poly_add(&a,generator);
+            deg_a = poly_deg(a);
+        }
+        else
+        {
+            struct Data* copy = data_copy(generator);
+            data_rshift(&copy, 1);
+            poly_add(&a, copy);
+            deg_a = poly_deg(a);
+            data_free(copy);
+        }
     }
 
-    //data_free(q);
-    data_free(r);
-    return q;
+    data_free(q);
+    data_free(generator);
+    return a; //Returns the remainder
 }
 
 struct Data* poly_encode(struct Data* message)

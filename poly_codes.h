@@ -1,8 +1,9 @@
 #include "data.h"
 
-struct Data* data_copy(struct Data* word);
+struct Data* data_copy(struct Data* word); //Returns a copy of length N
 void data_rshift(struct Data** word, uint16_t n); //The word given is assumed to be of length N.
 
+struct Data* generator_to_poly(void);
 uint8_t poly_lead(struct Data* poly);
 uint16_t poly_deg(struct Data* poly); //Returns the degree of the given polynomial.
 void poly_add(struct Data** x, struct Data* y); //Do x = x+y.
