@@ -1,16 +1,17 @@
 #include "poly_codes.h"
 
+
 struct Data* data_copy(struct Data* word)
 {
-    struct Data* copy = data_generate(N);
+    Poly copy = data_generate(N);
     for(uint16_t i = 0; i<word->data_number; i++)
         data_set(i, data_get(i, word), copy);
     return copy;
 }
 
-void data_rshift(struct Data** word, uint16_t n)
+void data_rshift(Poly* word, uint16_t n)
 {
-    struct Data* message_mul = data_generate(N);
+    Poly message_mul = data_generate(N);
 
     for(uint16_t i=0; i<N; i++)
     {
@@ -21,15 +22,15 @@ void data_rshift(struct Data** word, uint16_t n)
     *word = message_mul;
 }
 
-struct Data* generator_to_poly(void)
+Poly generator_to_poly(void)
 {
-    struct Data* poly = data_generate(N);
+    Poly poly = data_generate(N);
     for(uint16_t i = 0; i<M+1; i++)
         data_set(i, G&(1<<i), poly);
     return poly;
 }
 
-uint16_t poly_deg(struct Data* poly)
+uint16_t poly_deg(Poly poly)
 {
     uint16_t n = poly->data_number;
     uint8_t m = 1; //Invariant de boucle.
@@ -45,21 +46,21 @@ uint16_t poly_deg(struct Data* poly)
     return n-1;
 }
 
-uint8_t poly_lead(struct Data* poly)
+uint8_t poly_lead(Poly poly)
 {
     uint16_t d = poly_deg(poly);
     return data_get(d,poly);
 }
 
-void poly_add(struct Data** x, struct Data* y)
+void poly_add(Poly* x, Poly y)
 {
     for(uint16_t i = 0; i<N; i++)
         data_set(i,data_get(i,*x)^data_get(i,y), *x);
 }
 
-struct Data* poly_mul_sca(uint8_t sca, struct Data* poly)
+Poly poly_mul_sca(uint8_t sca, Poly poly)
 {
-    struct Data* result = data_generate(N);
+    Poly result = data_generate(N);
     if (sca)
     {
         for(uint16_t i = 0; i< poly->data_number; i++)
@@ -68,12 +69,12 @@ struct Data* poly_mul_sca(uint8_t sca, struct Data* poly)
     return result;
 }
 
-struct Data* poly_mul(struct Data* poly)
+Poly poly_mul(Poly poly)
 {
-    struct Data* result = data_generate(N);
-    struct Data* temp = NULL; //Degree N
+    Poly result = data_generate(N);
+    Poly temp = NULL; //Degree N
 
-    for(uint16_t i = 0; i<M+1; i++)
+    for(uint16_t i = 0; i<N+1; i++)
     {
         uint8_t j = G & (1 << i);
         temp = poly_mul_sca(j, poly);
@@ -84,57 +85,79 @@ struct Data* poly_mul(struct Data* poly)
     return result;
 }
 
-struct Data* poly_div(struct Data* poly)
+Poly* poly_div(Poly poly)
 {
-    /*
-        a = G*q + r
-    */
-    struct Data* q = data_generate(N);
-    struct Data* a = data_copy(poly);
-    uint16_t deg_a = poly_deg(a);
-    struct Data* generator = generator_to_poly();
+    //a = G*q + r
+    Poly generator = generator_to_poly();
+    Poly a = data_copy(poly);
+    Poly q = data_generate(N); //Check the size
 
-    while( deg_a >= M)
+    uint16_t deg_a = poly_deg(a);
+    uint16_t i = deg_a-M;
+
+    while(deg_a >= M)
     {
-        if(deg_a == M)
-        {
-            poly_add(&a,generator);
-            deg_a = poly_deg(a);
-        }
-        else
-        {
-            struct Data* copy = data_copy(generator);
-            data_rshift(&copy, 1);
-            poly_add(&a, copy);
-            deg_a = poly_deg(a);
-            data_free(copy);
-        }
+        Poly g_copy = data_copy(generator);
+        data_rshift(&g_copy, i);
+        poly_add(&a, g_copy);
+        deg_a = poly_deg(a);
+        data_free(g_copy);
+        data_set(i, 1, q);
+        i = deg_a-M;
     }
 
-    data_free(q);
     data_free(generator);
-    return a; //Returns the remainder
+    Poly* result = malloc(2*sizeof(Poly));
+    result[0] = q;
+    result[1] = a;
+    return result; //Returns the couple (quotient, remainder)
 }
 
-struct Data* poly_encode(struct Data* message)
+Poly poly_encode(Poly message)
 {
     //Move the bits to the right by K: X^n times Message
-    struct Data* message_mul = data_generate(N);
+    Poly poly = data_copy(message);
+    data_rshift(&poly, M);
+    Poly* tmp = poly_div(poly);
+    Poly encoded_word = poly_mul(tmp[0]);
 
-    //data_shift
+    data_free(poly);
+    data_free(tmp[0]);
+    data_free(tmp[1]);
+    free(tmp);
 
-    struct Data* data_word = poly_div(message_mul);
-    data_free(message_mul);
-
-    return data_word;
+    return encoded_word;
 }
 
-struct Data* poly_decode(struct Data* codedword)
+Poly poly_decode(Poly message)
 {
-    return NULL;
+    uint8_t codeword = 1;
+    Poly* result = poly_div(message);
+
+    uint16_t i = 0;
+    while(i < result[1]->data_number && codeword)
+    {
+        if (data_get(i, result[1]) != 0)
+            codeword = 0;
+        i++;
+    }
+
+    data_free(result[0]);
+    data_free(result[1]);
+    free(result);
+
+    if(!codeword){
+        return NULL;
+    }
+    else{
+        Poly decoded_message = data_generate(K);
+        for(uint16_t j = 0; j < decoded_message->data_number; j++)
+        {
+            data_set(j, data_get(j+M, message), decoded_message);
+        }
+
+        return decoded_message;
+    }
 }
 
-uint8_t poly_check(struct Data* message)
-{
-    return 1;
-}
+

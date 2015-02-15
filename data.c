@@ -16,14 +16,15 @@ struct Data* data_generate(uint16_t data_number)
 
     //Sets the data_number field
     d->data_number = data_number;
-
     return d;
 }
 
 void data_free(struct Data* d)
 {
-    free(d->data_array);
-    free(d);
+    if(d != NULL){
+        free(d->data_array);
+        free(d);
+    }
 }
 
 
@@ -88,13 +89,17 @@ void data_delete(uint16_t n, struct Data* d)
         #ifdef __AVR__
 
         #else
-             printf("\nShow %d data :\n( ", d->data_number);
-            for(uint16_t i = d->data_number-1; i  < d->data_number; i--)
-            {
-                data = data_get(i, d);
-                printf("%d ", data);
+            if(d == NULL)
+                printf("\ndata == NULL\n");
+            else{
+                printf("\nShow %d data :\n( ", d->data_number);
+                for(uint16_t i = d->data_number-1; i  < d->data_number; i--)
+                {
+                    data = data_get(i, d);
+                    printf("%d ", data);
+                }
+                printf(")\n\n");
             }
-            printf(")\n\n");
         #endif // __AVR__
     }
 #endif

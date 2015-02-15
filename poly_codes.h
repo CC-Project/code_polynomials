@@ -1,31 +1,48 @@
 #include "data.h"
 
-struct Data* data_copy(struct Data* word); //Returns a copy of length N
-void data_rshift(struct Data** word, uint16_t n); //The word given is assumed to be of length N.
+typedef struct Data* Poly;
+
+Poly data_copy(Poly word); //Returns a copy of length N
+void data_rshift(Poly* word, uint16_t n); //The word given is assumed to be of length N.
 
 struct Data* generator_to_poly(void);
-uint8_t poly_lead(struct Data* poly);
-uint16_t poly_deg(struct Data* poly); //Returns the degree of the given polynomial.
-void poly_add(struct Data** x, struct Data* y); //Do x = x+y.
+uint8_t poly_lead(Poly poly);
+uint16_t poly_deg(Poly poly); //Returns the degree of the given polynomial.
+void poly_add(Poly* x, Poly y); //Do x = x+y.
+
 
 /*
     Computes sca * poly, where sca is 1 or 0 (scalar).
     Returns a poly of degree N.
 */
-struct Data* poly_mul_sca(uint8_t sca, struct Data* poly);
+Poly poly_mul_sca(uint8_t sca, Poly poly);
+
 
 /*
     Returns G times poly. (Polynomial multiplication)
     poly is assumed to be of degree K.
 */
-struct Data* poly_mul(struct Data* poly);
+Poly poly_mul(Poly poly);
+
 
 /*
-    Computes the euclidean division of poly by G. Results is: poly = q*g + r. Returns remainder r.
+    Computes the euclidean division of poly by G. Results is: poly = q*g + r.
     The poly given is assumed to be of length N.
+    Returns a array containing the quotient and the remainder (in that order)
+    The quotient is of length K.
 */
-struct Data* poly_div(struct Data* poly);
+Poly* poly_div(Poly poly);
 
-struct Data* poly_encode(struct Data* message);
-struct Data* poly_decode(struct Data* codedword); //Length of codedword is N
-uint8_t poly_check(struct Data* message);   //Check if given message is a codeword. Returns 0 if a codeword, something else if not.
+
+/*
+    message is assumed to be og length K.
+*/
+Poly poly_encode(Poly message);
+
+
+/*
+    Check if given message is a codeword and decode it if possible.
+    Returns the decoded message, or NULL is the given message was not a codeword.
+    The given message is assumed to be of length N
+*/
+Poly poly_decode(Poly codedword); //Length of codedword is N
