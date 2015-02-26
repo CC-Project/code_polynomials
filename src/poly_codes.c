@@ -1,17 +1,24 @@
-#include "poly_codes.h"
+#include "../inc/poly_codes.h"
 
-
-struct Data* data_copy(struct Data* word)
+Polynome data_copy(struct Data* word)
 {
-    Poly copy = data_generate(N);
+    Polynome copy = data_generate(N);
     for(uint16_t i = 0; i<word->data_number; i++)
         data_set(i, data_get(i, word), copy);
     return copy;
 }
 
-void data_rshift(Poly* word, uint16_t n)
+Polynome generator_to_poly(void)
 {
-    Poly message_mul = data_generate(N);
+    Polynome poly = data_generate(N);
+    for(uint16_t i = 0; i<M+1; i++)
+        data_set(i, G&(1<<i), poly);
+    return poly;
+}
+
+void data_rshift(Polynome* word, uint16_t n)
+{
+    Polynome message_mul = data_generate(N);
 
     for(uint16_t i=0; i<N; i++)
     {
@@ -22,57 +29,45 @@ void data_rshift(Poly* word, uint16_t n)
     *word = message_mul;
 }
 
-Poly generator_to_poly(void)
-{
-    Poly poly = data_generate(N);
-    for(uint16_t i = 0; i<M+1; i++)
-        data_set(i, G&(1<<i), poly);
-    return poly;
-}
-
-uint16_t poly_deg(Poly poly)
+uint16_t poly_deg(Polynome poly)
 {
     uint16_t n = poly->data_number;
-    uint8_t m = 1; //Invariant de boucle.
-    while( n > 1 && m){ //n>1 to work with the zero polynomial
-        if(data_get(n-1, poly) == 1){
-            m = 0;
-        }
-        else{
+    while(n > 1) // n > 1 to work with the zero polynomial
+        if(data_get(n-1, poly) == 1)
+            break;
+        else
             n--;
-        }
 
-    }
-    return n-1;
+    return n - 1;
 }
 
-uint8_t poly_lead(Poly poly)
+uint8_t poly_lead(Polynome poly)
 {
     uint16_t d = poly_deg(poly);
     return data_get(d,poly);
 }
 
-void poly_add(Poly* x, Poly y)
+void poly_add(Polynome* x, Polynome y)
 {
-    for(uint16_t i = 0; i<N; i++)
+    for(uint16_t i = 0; i < N; i++)
         data_set(i,data_get(i,*x)^data_get(i,y), *x);
 }
 
-Poly poly_mul_sca(uint8_t sca, Poly poly)
+Polynome poly_mul_sca(uint8_t sca, Polynome poly)
 {
-    Poly result = data_generate(N);
+    Polynome result = data_generate(N);
+
     if (sca)
-    {
         for(uint16_t i = 0; i< poly->data_number; i++)
             data_set(i, data_get(i, poly), result);
-    }
+
     return result;
 }
 
-Poly poly_mul(Poly poly)
+Polynome poly_mul(Polynome poly)
 {
-    Poly result = data_generate(N);
-    Poly temp = NULL; //Degree N
+    Polynome result = data_generate(N);
+    Polynome temp = NULL; //Degree N
 
     for(uint16_t i = 0; i<N+1; i++)
     {
@@ -82,22 +77,23 @@ Poly poly_mul(Poly poly)
         poly_add(&result, temp);
         data_free(temp);
     }
+
     return result;
 }
 
-Poly* poly_div(Poly poly)
+Polynome* poly_div(Polynome poly)
 {
     //a = G*q + r
-    Poly generator = generator_to_poly();
-    Poly a = data_copy(poly);
-    Poly q = data_generate(N); //Check the size
+    Polynome generator = generator_to_poly();
+    Polynome a = data_copy(poly);
+    Polynome q = data_generate(N); //Check the size
 
     uint16_t deg_a = poly_deg(a);
-    uint16_t i = deg_a-M;
+    uint16_t i = deg_a - M;
 
     while(deg_a >= M)
     {
-        Poly g_copy = data_copy(generator);
+        Polynome g_copy = data_copy(generator);
         data_rshift(&g_copy, i);
         poly_add(&a, g_copy);
         deg_a = poly_deg(a);
@@ -107,19 +103,20 @@ Poly* poly_div(Poly poly)
     }
 
     data_free(generator);
-    Poly* result = malloc(2*sizeof(Poly));
+    Polynome* result = malloc(2*sizeof(Poly));
     result[0] = q;
     result[1] = a;
+
     return result; //Returns the couple (quotient, remainder)
 }
 
-Poly poly_encode(Poly message)
+Polynome poly_encode(Polynome message)
 {
     //Move the bits to the right by K: X^n times Message
-    Poly poly = data_copy(message);
+    Polynome poly = data_copy(message);
     data_rshift(&poly, M);
-    Poly* tmp = poly_div(poly);
-    Poly encoded_word = poly_mul(tmp[0]);
+    Polynome* tmp = poly_div(poly);
+    Polynome encoded_word = poly_mul(tmp[0]);
 
     data_free(poly);
     data_free(tmp[0]);
@@ -129,10 +126,10 @@ Poly poly_encode(Poly message)
     return encoded_word;
 }
 
-Poly poly_decode(Poly message)
+Polynome poly_decode(Polynome message)
 {
     uint8_t codeword = 1;
-    Poly* result = poly_div(message);
+    Polynome* result = poly_div(message);
 
     uint16_t i = 0;
     while(i < result[1]->data_number && codeword)
@@ -146,15 +143,14 @@ Poly poly_decode(Poly message)
     data_free(result[1]);
     free(result);
 
-    if(!codeword){
+    if(!codeword)
         return NULL;
-    }
-    else{
-        Poly decoded_message = data_generate(K);
+    else
+    {
+        Polynome decoded_message = data_generate(K);
+
         for(uint16_t j = 0; j < decoded_message->data_number; j++)
-        {
             data_set(j, data_get(j+M, message), decoded_message);
-        }
 
         return decoded_message;
     }

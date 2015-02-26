@@ -1,4 +1,4 @@
-#include "utilities.h"
+#include "../inc/utilities.h"
 
 #ifdef __AVR__
     void uart_init(void)
