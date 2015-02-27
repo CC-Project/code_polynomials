@@ -27,8 +27,6 @@ void data_free(struct Data* d)
     }
 }
 
-
-
 // Data operations
 uint8_t data_get(uint16_t n, struct Data* d)
 {
