@@ -1,5 +1,5 @@
 #include "config.h"
-#include "inc/poly_codes.h"
+#include "src/polynome/polynome.h"
 
 int main(int argc, char *argv[])
 {
