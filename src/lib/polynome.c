@@ -1,4 +1,4 @@
-#include "polynome.h"
+#include "../include/polynome.h"
 
 Polynome data_copy(struct Data* word)
 {
