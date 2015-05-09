@@ -3,19 +3,19 @@
 // Data generation/free
 struct Data* data_generate(uint16_t data_number)
 {
-    //Allocates memory for the struct
+    // Allocates memory for the struct
     struct Data* d = malloc(sizeof(struct Data));
 
     if (!d)
          error("ERROR : data_generate : Dynamic allocation not possible for the data structure");
 
-    //Allocates memory for the array
+    // Allocates memory for the array
     uint16_t n = (data_number - 1) / 8 + 1; // Number of byte needed
-    d->data_array = calloc(n,sizeof(uint8_t)); //Automatically sets the bits to zero
+    d->data_array = calloc(n,sizeof(uint8_t)); // Automatically sets the bits to zero
     if (d->data_array == NULL)
          error("ERROR : data_generate : Dynamic allocation not possible for the array");
 
-    //Sets the data_number field
+    // Sets the data_number field
     d->data_number = data_number;
     return d;
 }
@@ -55,11 +55,11 @@ void data_delete(uint16_t n, struct Data* d)
 {
     if (0 <= n && n < d->data_number)
     {
-        //Move the data, starting from the data we want to delete.
+        // Move the data, starting from the data we want to delete.
         for(uint16_t i = n; i < d->data_number - 1; i++)
             data_set(i, data_get(i + 1, d), d);
 
-        //Determines whether or not it is necessary to allocate a new block of memory.
+        // Determines whether or not it is necessary to allocate a new block of memory.
         uint16_t old_byte_number_needed = (d->data_number - 1)/8 + 1;;
         uint16_t new_byte_number_needed = d->data_number/8 + 1;
 

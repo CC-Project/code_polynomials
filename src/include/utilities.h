@@ -9,7 +9,7 @@
         void uart_tx_char(char c);
         void uart_tx_str(int8_t* str);
         void uart_newline(void);
-        int freeRam(); //Returns the memory available
+        int freeRam(); // Returns the memory available
     #else
         #include <inttypes.h>
         #include <stdlib.h>
@@ -23,7 +23,7 @@
     #endif
 
     uint8_t error(char* str); // Exit the program with the error code EXIT_FAILED
-    uint16_t int_pow(uint16_t a, uint16_t b);   //Computes a^b
+    uint16_t int_pow(uint16_t a, uint16_t b);   // Computes a^b
     uint8_t opposite_bit(uint8_t bit);
 
 #endif // UTILITIES_H

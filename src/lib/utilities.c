@@ -3,14 +3,14 @@
 #ifdef __AVR__
     void uart_init(void)
     {
-        UBRR0L = BAUD_RATE; 						//Set baud rate to 38400. Assuming internal clock is 16MHz
-        UCSR0C = (1 << UCSZ00 ) | (1 << UCSZ01 ); 	//8 bits characters,
+        UBRR0L = BAUD_RATE; 						// Set baud rate to 38400. Assuming internal clock is 16MHz
+        UCSR0C = (1 << UCSZ00 ) | (1 << UCSZ01 ); 	// 8 bits characters,
         UCSR0B = (1 << RXEN0 ) | (1 << TXEN0 );		// Turn on the transmission and reception circuitry
     }
 
     void uart_tx_char(char c)
     {
-        while( !(UCSR0A & (1 << UDRE0)) ); //Wait until UDR empty
+        while( !(UCSR0A & (1 << UDRE0)) ); // Wait until UDR empty
         UDR0 = c;
     }
 
@@ -57,7 +57,7 @@
         #ifdef __AVR__
             uart_tx_str("0b")
             for(int8_t i = 0; i < 7; i++)
-                uart_tx_char((var >> i) & 1 + 0x30 ); //0x30 is the offset needed to print the appropriate number
+                uart_tx_char((var >> i) & 1 + 0x30 ); // 0x30 is the offset needed to print the appropriate number
         #else
             printf("0b");
             for(int8_t i = 0; i <7; i++)
@@ -74,7 +74,7 @@ uint8_t error(char* str)
         abort();
     #else
         fprintf(stderr, str);
-        fprintf(stderr, "\r\n"); //New line
+        fprintf(stderr, "\r\n"); // New line
         system("PAUSE>NUL");
         exit(EXIT_FAILURE);
     #endif // __AVR__
