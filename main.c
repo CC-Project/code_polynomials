@@ -1,15 +1,14 @@
 #include "config.h"
 #include "src/include/poly.h"
 
-extern Poly syndrome[N];
+extern Poly* syndrome;
 
 int main(int argc, char *argv[])
 {
-    make_syndrome();
-    Poly syndrome[N];
+    Poly* syndrome = make_syndrome();
     uint16_t i = 0;
     for(i = 0; i<N; i++)
-        //data_show(syndrome[i]);
+        data_show(syndrome[i]);
 //    Poly message = data_generate(K);
 //    data_set(0, 1, message);
 //    data_set(1, 1, message);

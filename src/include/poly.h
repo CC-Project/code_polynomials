@@ -1,7 +1,7 @@
 #include "data.h"
 
 typedef struct Data* Poly;
-extern Poly syndrome[N];
+extern Poly* syndrome;
 
 Poly data_copy(Poly word); // Returns a copy of length N
 Poly generator_to_poly(void);
@@ -57,4 +57,4 @@ Poly poly_decode(Poly codedword); // Length of codedword is N
     Set global variable syndrome
     to an array of syndrome
 */
-void make_syndrome();
+Poly* make_syndrome();

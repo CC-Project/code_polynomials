@@ -1,7 +1,5 @@
 #include "../include/poly.h"
 
-extern Poly syndrome[N];
-
 Poly data_copy(struct Data* word)
 {
     Poly copy = data_generate(N);
@@ -132,13 +130,13 @@ uint8_t poly_is_codeword(Poly message)
     uint8_t codeword = 1;
     Poly* result = poly_div(message);
 
-    for(uint16_t i = 0; i < result[1]->data_number; i++)
+    uint16_t i = 0;
+    for(i = 0; i < result[1]->data_number; i++)
         if (data_get(i, result[1]) != 0)
         {
             codeword = 0;
             break;
         }
-    uint16_t i = 0;
 
     data_free(result[0]);
     data_free(result[1]);
@@ -163,22 +161,20 @@ Poly poly_decode(Poly message)
     }
 }
 
-void make_syndrome()
+Poly* make_syndrome()
 {
-    Poly syndrome[N];
+    Poly* synd = malloc(N*sizeof(Poly));
     uint16_t i = 0;
     for(i=0; i<N; i++)
     {
         Poly tmp = data_generate(N);
         data_set(i,1,tmp);
         Poly* result = poly_div(tmp);
-        syndrome[i] = data_copy(result[1]);
+        synd[i] = data_copy(result[1]);
         data_free(result[0]);
         data_free(result[1]);
         free(result);
         data_free(tmp);
     }
-
-    for(i = 0; i<N; i++)
-        data_show(syndrome[i]);
+    return synd;
 }
