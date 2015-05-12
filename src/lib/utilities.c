@@ -1,32 +1,6 @@
-#include "../include/utilities.h"
+#include "utilities.h"
 
 #ifdef __AVR__
-    void uart_init(void)
-    {
-        UBRR0L = BAUD_RATE; 						// Set baud rate to 38400. Assuming internal clock is 16MHz
-        UCSR0C = (1 << UCSZ00 ) | (1 << UCSZ01 ); 	// 8 bits characters,
-        UCSR0B = (1 << RXEN0 ) | (1 << TXEN0 );		// Turn on the transmission and reception circuitry
-    }
-
-    void uart_tx_char(char c)
-    {
-        while( !(UCSR0A & (1 << UDRE0)) ); // Wait until UDR empty
-        UDR0 = c;
-    }
-
-    void uart_tx_str(int8_t* str)
-    {
-        while(*str)
-            uart_tx_char(*str++);
-        uart_newline();
-    }
-
-    void uart_newline(void)
-    {
-        uart_tx_char('\r');
-        uart_tx_char('\n');
-    }
-
     int freeRam()
     {
       extern int __heap_start, *__brkval;
@@ -55,7 +29,7 @@
     void print_var_bits(uint8_t var)
     {
         #ifdef __AVR__
-            uart_tx_str("0b")
+            uart_tx_str("0b");
             for(int8_t i = 0; i < 7; i++)
                 uart_tx_char((var >> i) & 1 + 0x30 ); // 0x30 is the offset needed to print the appropriate number
         #else

@@ -2,18 +2,17 @@
     #define UTILITIES_H
     #pragma once
 
-    #include "../../config.h"
+    #ifdef DEBUG
+        #include "../uart_lib/uart.h"
+    #endif
+    #include <stdlib.h>
+    #include <stdio.h>
+    #include <inttypes.h>
+
 
     #ifdef __AVR__
-        void uart_init(void);
-        void uart_tx_char(char c);
-        void uart_tx_str(int8_t* str);
-        void uart_newline(void);
         int freeRam(); // Returns the memory available
     #else
-        #include <inttypes.h>
-        #include <stdlib.h>
-        #include <stdio.h>
         char bin_to_ascii(uint8_t bin);
         uint8_t ascii_to_bin(char bin);
     #endif

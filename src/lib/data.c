@@ -1,4 +1,4 @@
-#include "../include/data.h"
+#include "data.h"
 
 // Data generation/free
 struct Data* data_generate(uint16_t data_number)
@@ -37,7 +37,7 @@ uint8_t data_get(uint16_t n, struct Data* d)
     else
         error("ERROR: Incorect data number. Function data_get");
 
-    return EXIT_FAILURE;
+    return -1;
 }
 
 void data_set(uint16_t n, uint8_t data, struct Data* d)
@@ -78,7 +78,6 @@ void data_delete(uint16_t n, struct Data* d)
 #ifdef DEBUG
     void data_show(struct Data* d)
     {
-        uint8_t data;
         #ifdef __AVR__
             if(d == NULL)
                 uart_tx_str("data == NULL\r\n");

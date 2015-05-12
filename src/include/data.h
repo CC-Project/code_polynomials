@@ -2,13 +2,15 @@
     #define DATA_H
     #pragma once
 
-    #ifndef __AVR__
-        #include <inttypes.h>
-        #include <stdlib.h>
-    #endif // __AVR__
-
+    #include "config.h"
+    #ifdef DEBUG
+        #include "../uart_lib/uart.h"
+    #endif
     #include "utilities.h"
-    #include "../../config.h"
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <inttypes.h>
+
 
     struct Data
     {
