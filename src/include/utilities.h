@@ -3,7 +3,7 @@
     #pragma once
 
     #ifdef DEBUG
-        #include "../uart_lib/uart.h"
+        #include "../../uart_lib/uart.h"
     #endif
     #include <stdlib.h>
     #include <stdio.h>

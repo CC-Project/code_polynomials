@@ -2,9 +2,9 @@
     #define DATA_H
     #pragma once
 
-    #include "config.h"
+    #include "../config.h"
     #ifdef DEBUG
-        #include "../uart_lib/uart.h"
+        #include "../../uart_lib/uart.h"
     #endif
     #include "utilities.h"
     #include <stdio.h>
