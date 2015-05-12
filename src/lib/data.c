@@ -80,7 +80,18 @@ void data_delete(uint16_t n, struct Data* d)
     {
         uint8_t data;
         #ifdef __AVR__
-
+            if(d == NULL)
+                uart_tx_str("data == NULL\r\n");
+            else
+            {
+                for(uint16_t i = d->data_number-1; i  < d->data_number; i--)
+                {
+                    char str[5];
+                    sprintf(str, "%d", data_get(i, d));
+                    uart_tx_str(str);
+                }
+                uart_newline();
+            }
         #else
             if(d == NULL)
                 printf("\ndata == NULL\n");

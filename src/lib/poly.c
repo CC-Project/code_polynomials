@@ -1,4 +1,6 @@
-#include "../include/polynome.h"
+#include "../include/poly.h"
+
+extern Poly syndrome[N];
 
 Poly data_copy(struct Data* word)
 {
@@ -112,7 +114,6 @@ Poly* poly_div(Poly poly)
 
 Poly poly_encode(Poly message)
 {
-    // Move the bits to the right by K: X^n times Message
     Poly poly = data_copy(message);
     data_rshift(&poly, M);
     Poly* tmp = poly_div(poly);
@@ -126,7 +127,7 @@ Poly poly_encode(Poly message)
     return encoded_word;
 }
 
-Poly poly_decode(Poly message)
+uint8_t poly_is_codeword(Poly message)
 {
     uint8_t codeword = 1;
     Poly* result = poly_div(message);
@@ -137,12 +138,19 @@ Poly poly_decode(Poly message)
             codeword = 0;
             break;
         }
+    uint16_t i = 0;
 
     data_free(result[0]);
     data_free(result[1]);
     free(result);
+    return codeword;
+}
 
-    if(!codeword)
+
+Poly poly_decode(Poly message)
+{
+
+    if(!poly_is_codeword(message))
         return NULL;
     else
     {
@@ -153,4 +161,24 @@ Poly poly_decode(Poly message)
 
         return decoded_message;
     }
+}
+
+void make_syndrome()
+{
+    Poly syndrome[N];
+    uint16_t i = 0;
+    for(i=0; i<N; i++)
+    {
+        Poly tmp = data_generate(N);
+        data_set(i,1,tmp);
+        Poly* result = poly_div(tmp);
+        syndrome[i] = data_copy(result[1]);
+        data_free(result[0]);
+        data_free(result[1]);
+        free(result);
+        data_free(tmp);
+    }
+
+    for(i = 0; i<N; i++)
+        data_show(syndrome[i]);
 }

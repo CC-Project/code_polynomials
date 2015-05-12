@@ -1,6 +1,7 @@
-#include "../../lib/data/import.h"
+#include "data.h"
 
 typedef struct Data* Poly;
+extern Poly syndrome[N];
 
 Poly data_copy(Poly word); // Returns a copy of length N
 Poly generator_to_poly(void);
@@ -39,6 +40,10 @@ Poly* poly_div(Poly poly);
 */
 Poly poly_encode(Poly message);
 
+/*
+    Check if given message if a codeword
+*/
+uint8_t poly_is_codeword(Poly message);
 
 /*
     Check if given message is a codeword and decode it if possible.
@@ -46,3 +51,10 @@ Poly poly_encode(Poly message);
     The given message is assumed to be of length N
 */
 Poly poly_decode(Poly codedword); // Length of codedword is N
+
+
+/*
+    Set global variable syndrome
+    to an array of syndrome
+*/
+void make_syndrome();
