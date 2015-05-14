@@ -14,9 +14,9 @@
 	#endif
 
     //Generator polynomial
-    #define G 0b110
-    #define M 2 // Length of the generator polynomial G.
-    #define N 5
+    #define G 0b1011 //Hamming (7,4,3)
+    #define M 3 // Length of the generator polynomial G.
+    #define N 7
     #define K N-M // Length of data words
 
 #endif // CONFIG_H

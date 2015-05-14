@@ -6,7 +6,8 @@ This module implement the polynomials correcting codes. The example will be the 
 
 Todo
 ====
-Use the correct amount of data in data_generate.
+Use the correct amount of data in data_generate.  
+Use XOR operation for poly_div.  
 
 Notations and configuration
 =========
