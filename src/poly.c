@@ -2,7 +2,7 @@
 
 Poly data_copy(struct Data* word)
 {
-    Poly copy = data_generate(N);
+    Poly copy = data_generate(word->data_number);
     for(uint16_t i = 0; i<word->data_number; i++)
         data_set(i, data_get(i, word), copy);
 
@@ -34,9 +34,10 @@ uint8_t poly_equality(Poly a, Poly b)
 
 void data_rshift(Poly* word, uint16_t n)
 {
-    Poly message_mul = data_generate(N);
-    for(uint16_t i = 0; i < N; i++)
-       data_set((i+n)%N, data_get(i, *word), message_mul);
+    Poly message_mul = data_generate((*word)->data_number);
+    uint16_t i = 0;
+    for(i = 0; i < (*word)->data_number; i++)
+       data_set((i+n)%(*word)->data_number, data_get(i, *word), message_mul);
 
     data_free(*word);
     *word = message_mul;
@@ -59,7 +60,8 @@ uint8_t poly_lead(Poly poly)
 
 void poly_add(Poly* x, Poly y)
 {
-    for(uint16_t i = 0; i < N; i++)
+    uint32_t m = ((*x)->data_number <= y->data_number) ? (*x)->data_number : y->data_number; // Simple min func
+    for(uint16_t i = 0; i < m; i++)
         data_set(i, data_get(i, *x) ^ data_get(i, y), *x);
 }
 
@@ -94,36 +96,50 @@ Poly poly_mul(Poly poly)
 Poly* poly_div(Poly poly)
 {
     //a = G*q + r
-    Poly generator = generator_to_poly();
+    uint32_t i = poly_deg(poly);
+    uint16_t g = poly_deg(generator);
+
+    Poly* result = malloc(2*sizeof(Poly));
+    Poly q = data_generate(abs(i - g) + 1);
     Poly a = data_copy(poly);
-    Poly q = data_generate(N); // Check the size
 
-    uint16_t deg_a = poly_deg(a);
-    uint16_t i = deg_a - M;
-
-    while(deg_a >= M)
+    if(i >= g)
     {
-        Poly g_copy = data_copy(generator);
-        data_rshift(&g_copy, i);
-        poly_add(&a, g_copy);
-        deg_a = poly_deg(a);
-        data_free(g_copy);
-        data_set(i, 1, q);
-        i = deg_a - M;
+        uint16_t j = 0;
+
+        while(i>0 && i>= g)
+        {
+            data_set(i-g, 1, q);
+            for(j=0; j<=g; j++){
+                data_set(i-j, data_get(i-j, a) ^ data_get(g - j, generator), a);
+            }
+            i = poly_deg(a);
+        }
     }
 
-    data_free(generator);
-    Poly* result = malloc(2*sizeof(Poly));
+    //Copy a in remainder (nedd a size of K)
+    Poly remainder = data_generate(K);
+    i = 0;
+
+    for(i=0; i<K; i++)
+        data_set(i, data_get(i, a), remainder);
+
+    data_free(a);
     result[0] = q;
-    result[1] = a;
+    result[1] = remainder;
 
     return result; // Returns the couple (quotient, remainder)
 }
 
 Poly poly_encode(Poly message)
 {
-    Poly poly = data_copy(message);
+    //Copy the message make it of length N
+    Poly poly = data_generate(N);
+    for(uint16_t i = 0; i<message->data_number; i++)
+        data_set(i, data_get(i, message), poly);
+
     data_rshift(&poly, M);
+
     Poly* tmp = poly_div(poly);
     Poly encoded_word = poly_mul(tmp[0]);
 
@@ -157,12 +173,6 @@ uint8_t poly_is_codeword(Poly message)
 
 Poly poly_decode(Poly message)
 {
-    //Decode the message
-    Poly decoded_message = data_generate(K);
-
-    for(uint16_t j = 0; j < decoded_message->data_number; j++)
-        data_set(j, data_get(j+M, message), decoded_message);
-
     //If there was an error, locate the faulty bit
     if(!poly_is_codeword(message))
     {
@@ -176,9 +186,19 @@ Poly poly_decode(Poly message)
             if(poly_equality(syndrome[i], res[1])) //We located the faulty bit
             {
                 #ifdef DEBUG
-                    printf("Bit %d is faulty\n", i);
+                    printf("Bit %d is faulty.\nCorrect codeword was:\n", i);
                 #endif
-                data_set(i, data_get(i, message) ^ 1, message);
+
+                //Correction
+                Poly tmp = data_generate(message->data_number);
+                data_set(i, 1, tmp);
+                poly_add(&message, tmp);
+                data_free(tmp);
+
+                #ifdef DEBUG
+                    data_show(message);
+                #endif // DEBUG
+
                 i = N; //Exit the loop
             }
             else
@@ -192,35 +212,22 @@ Poly poly_decode(Poly message)
     }
     #endif
 
+    //Decode the message by getting rid of the M last bits
+    Poly decoded_message = data_generate(K);
+    for(uint16_t j = 0; j < decoded_message->data_number; j++)
+        data_set(j, data_get(j+M, message), decoded_message);
+
     return decoded_message;
 }
 
 Poly* make_syndrome()
 {
-    Poly* synd = malloc(N*sizeof(Poly));
+    #ifdef DEBUG
+        printf("Building syndrome array...\n");
+    #endif
+    Poly* synd = malloc((N+1)*sizeof(Poly));
     uint16_t i = 0;
-    for(i=0; i<N; i++)
+    for(i=0; i<=N; i++)
     {
-        Poly tmp = data_generate(N);
-        data_set(i,1,tmp);
-        Poly* result = poly_div(tmp);
-        synd[i] = data_copy(result[1]);
-        data_free(result[0]);
-        data_free(result[1]);
-        free(result);
-        data_free(tmp);
-    }
-    return synd;
-}
-
-
-
-
-#ifdef DEBUG
-    void poly_show_syndrome(void)
-    {
-        uint16_t i = 0;
-        for(i=0; i<N; i++)
-            data_show(syndrome[i]);
-    }
-#endif
+        Poly tmp = data_generate(N+1);
+        data_set(i,
