@@ -6,7 +6,6 @@ This module implement the polynomials correcting codes.
 
 Todo
 ====
-Speed up poly_div: the quotient is not used.  
 Nothing so far.  
 
 Notations and configuration
