@@ -9,7 +9,7 @@ void test();
 
 int main(int argc, char *argv[])
 {
-    generator = generator_to_poly();
+    poly_init_generator();
     make_syndrome();
 
     printf("Message: ");
@@ -31,7 +31,6 @@ int main(int argc, char *argv[])
     data_free(decoded);
     data_free(coded_word);
     data_free(message);
-
 
     uint16_t i = 0;
     for(i=0; i<=N; i++)

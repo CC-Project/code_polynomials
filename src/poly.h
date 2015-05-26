@@ -19,10 +19,10 @@ struct Data* data_copy(struct Data* word);
 
 
 /**
- *  Returns the Poly structure associated with
+ *  Init the Poly structure associated with
  *  the generator polynomial G (defined in config.h)
 **/
-Poly generator_to_poly(void);
+void poly_init_generator(void);
 
 
 
@@ -91,4 +91,10 @@ uint8_t poly_is_codeword(Poly message);
      *  The syndrome is printed if DEBUG is defined.
     **/
     void make_syndrome();
+#endif
+
+
+#ifdef DEBUG
+    // Prints out a data structure.
+    void poly_show(struct Data* d);
 #endif

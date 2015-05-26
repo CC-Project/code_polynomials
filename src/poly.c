@@ -11,14 +11,11 @@ struct Data* data_copy(struct Data* word)
 
 
 
-
-Poly generator_to_poly(void)
+void poly_init_generator(void)
 {
-    Poly poly = data_generate(N);
+    generator = data_generate(M+1);
     for(uint16_t i = 0; i < M + 1; i++)
-        data_set(i, G&(1<<i), poly);
-
-    return poly;
+        data_set(i, G&(1<<i), generator);
 }
 
 
@@ -209,4 +206,35 @@ void make_syndrome()
         printf("Syndrome array built\n\n\n\n\n");
     #endif
 }
+#endif
+
+
+#ifdef DEBUG
+    void poly_show(struct Data* d)
+    {
+        #ifdef __AVR__
+            if(d == NULL)
+                uart_tx_str("data == NULL\r\n");
+            else
+            {
+                for(uint16_t i = d->data_number-1; i  < d->data_number; i--)
+                {
+                    char str[5];
+                    sprintf(str, "%d", data_get(i, d));
+                    uart_tx_str(str);
+                }
+                uart_newline();
+            }
+        #else
+            if(d == NULL)
+                printf("\ndata == NULL\n");
+            else
+            {
+                printf("(");
+                for(uint16_t i = d->data_number-1; i  < d->data_number; i--)
+                    printf("%d ", data_get(i, d));
+                printf(")\n\n");
+            }
+        #endif // __AVR__
+    }
 #endif
