@@ -2,8 +2,9 @@
 
 struct Data* data_copy(struct Data* word)
 {
+    uint16_t i = 0;
     Poly copy = data_generate(word->data_number);
-    for(uint16_t i = 0; i<word->data_number; i++)
+    for(i = 0; i<word->data_number; i++)
         data_set(i, data_get(i, word), copy);
 
     return copy;
@@ -13,8 +14,9 @@ struct Data* data_copy(struct Data* word)
 
 void poly_init_generator(void)
 {
+    uint16_t i = 0;
     generator = data_generate(M+1);
-    for(uint16_t i = 0; i < M + 1; i++)
+    for(i = 0; i < M + 1; i++)
         data_set(i, G&(1<<i), generator);
 }
 
@@ -48,7 +50,8 @@ uint16_t poly_deg(Poly poly)
 
 void poly_add(Poly* x, Poly y)
 {
-    for(uint16_t i = 0; i < y->data_number; i++)
+    uint16_t i = 0;
+    for(i = 0; i < y->data_number; i++)
         data_set(i, data_get(i, *x) ^ data_get(i, y), *x);
 }
 
@@ -144,11 +147,13 @@ uint8_t poly_is_codeword(Poly message)
 #ifdef CORR
 Poly poly_decode(Poly message)
 {
+    uint16_t i = 0;
+
     //If there was an error, locate the faulty bit
     if(!poly_is_codeword(message))
     {
         Poly res = poly_remainder(message);
-        uint16_t i = 0;
+
         while(i < N)
         {
             if(poly_equality(syndrome[i], res)) //We located the faulty bit
@@ -164,7 +169,7 @@ Poly poly_decode(Poly message)
                 data_free(tmp);
 
                 #ifdef DEBUG
-                    data_show(message);
+                    poly_show(message);
                 #endif // DEBUG
 
                 i = N; //Exit the loop
@@ -176,8 +181,8 @@ Poly poly_decode(Poly message)
 
     //Decode the message by getting rid of the M last bits
     Poly decoded_message = data_generate(K);
-    for(uint16_t j = 0; j < decoded_message->data_number; j++)
-        data_set(j, data_get(j+M, message), decoded_message);
+    for(i = 0; i < decoded_message->data_number; i++)
+        data_set(i, data_get(i+M, message), decoded_message);
 
     return decoded_message;
 }
@@ -203,7 +208,7 @@ void make_syndrome()
     }
 
     #ifdef DEBUG
-        printf("Syndrome array built\n\n\n\n\n");
+        printf("Syndrome array built. \n\n\n\n\n");
     #endif
 }
 #endif
@@ -212,12 +217,13 @@ void make_syndrome()
 #ifdef DEBUG
     void poly_show(struct Data* d)
     {
+        uint16_t i;
         #ifdef __AVR__
             if(d == NULL)
                 uart_tx_str("data == NULL\r\n");
             else
             {
-                for(uint16_t i = d->data_number-1; i  < d->data_number; i--)
+                for(i = d->data_number-1; i  < d->data_number; i--)
                 {
                     char str[5];
                     sprintf(str, "%d", data_get(i, d));
@@ -231,7 +237,7 @@ void make_syndrome()
             else
             {
                 printf("(");
-                for(uint16_t i = d->data_number-1; i  < d->data_number; i--)
+                for(i = d->data_number-1; i  < d->data_number; i--)
                     printf("%d ", data_get(i, d));
                 printf(")\n\n");
             }

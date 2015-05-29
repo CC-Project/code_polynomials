@@ -1,4 +1,4 @@
-#include "../config.h"
+#include "../config_polynomials.h"
 #include "../../lib_data/data.h"
 
 typedef struct Data* Poly;

@@ -13,11 +13,20 @@
         #include <stdlib.h>
 	#endif
 
-    //Generator polynomial
-    #define G 0b1011 //Hamming (7,4,3)
-    #define M 3 // Length of the generator polynomial G.
+    // Hamming (7,4,3)
+    #define G 0b1011
     #define N 7
-    #define K N-M // Length of data words
+    #define K 4 // Length of data words
+    #define M 3 // Length of the generator polynomial G.
     #define CORR
+    #define ERR_BITS 1
+
+    // Perfect binary Golay code (23,12,7)
+//    #define G 0b110001110101
+//    #define N 23
+//    #define K 12
+//    #define M 11
+//    #define CORR
+//    #define ERR_BITS 2
 
 #endif // CONFIG_H
