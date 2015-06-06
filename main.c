@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 
     printf("Coded word: ");
     Poly coded_word = poly_encode(message);
-    data_show(coded_word);
+    poly_show(coded_word);
     data_set(6,1,coded_word); // Add an error
     printf("Modified codeword: ");
     poly_show(coded_word);

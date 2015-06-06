@@ -132,9 +132,9 @@ uint8_t poly_is_codeword(Poly message)
 
     #ifdef DEBUG
     if(codeword)
-        printf("No errors detected\n");
+        printf("No errors detected.\n");
     else
-        printf("Error detected\n");
+        printf("Error detected.\n");
 
     #endif // DEBUG
     data_free(result);
