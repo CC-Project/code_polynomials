@@ -3,10 +3,11 @@
 
 typedef struct Data* Poly;
 extern Poly generator;
-#ifdef CORR
-    extern Poly* syndrome;
-#endif
-
+    #ifdef __AVR__
+        extern const uint16_t syndrome[N+1];
+    #else
+        uint16_t syndrome[N+1];
+    #endif // __AVR__
 
 
 
@@ -74,11 +75,6 @@ uint8_t poly_is_codeword(Poly message);
 
 
 
-
-/**
- *  If given polynomial allows to correct the data only.
-**/
-#ifdef CORR
     /**
      *  Returns the decoded message.
      *  The given codeword is assumed to be of length N.
@@ -91,7 +87,8 @@ uint8_t poly_is_codeword(Poly message);
      *  The syndrome is printed if DEBUG is defined.
     **/
     void make_syndrome();
-#endif
+
+    uint16_t poly_to_int(Poly p);
 
 
 #ifdef DEBUG

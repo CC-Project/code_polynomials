@@ -18,8 +18,7 @@
     #define N 7
     #define K 4 // Length of data words
     #define M 3 // Length of the generator polynomial G.
-    #define CORR
-    #define ERR_BITS 1
+
 
     // Perfect binary Golay code (23,12,7)
 //    #define G 0b110001110101

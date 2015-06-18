@@ -59,7 +59,7 @@ void poly_add(Poly* x, Poly y)
 
 Poly poly_remainder(Poly poly)
 {
-    //a = G*q + r
+    // a = G*q + r
     uint32_t i = poly_deg(poly);
     uint16_t g = poly_deg(generator);
 
@@ -141,10 +141,56 @@ uint8_t poly_is_codeword(Poly message)
     return codeword;
 }
 
+uint16_t poly_to_int(Poly p)
+{
+    uint16_t i;
+    uint16_t j = 0;
+    for(i=0; i<p->data_number; i++)
+        j+= (data_get(i, p) << i);
+    return j;
+}
 
-
-
-#ifdef CORR
+//Poly poly_decode(Poly message)
+//{
+//    uint16_t i = 0;
+//
+//    //If there was an error, locate the faulty bit
+//    if(!poly_is_codeword(message))
+//    {
+//        Poly res = poly_remainder(message);
+//
+//        while(i < N)
+//        {
+//            if(poly_equality(syndrome[i], res)) // We located the faulty bit
+//            {
+//                #ifdef DEBUG
+//                    printf("Bit %d is faulty.\nCorrect codeword was: ", i);
+//                #endif
+//
+//                //Correction
+//                Poly tmp = data_generate(message->data_number);
+//                data_set(i, 1, tmp);
+//                poly_add(&message, tmp);
+//                data_free(tmp);
+//
+//                #ifdef DEBUG
+//                    poly_show(message);
+//                #endif // DEBUG
+//
+//                i = N; //Exit the loop
+//            }
+//            else
+//                i++;
+//        }
+//    }
+//
+//    //Decode the message by getting rid of the M last bits
+//    Poly decoded_message = data_generate(K);
+//    for(i = 0; i < decoded_message->data_number; i++)
+//        data_set(i, data_get(i+M, message), decoded_message);
+//
+//    return decoded_message;
+//}
 Poly poly_decode(Poly message)
 {
     uint16_t i = 0;
@@ -152,31 +198,19 @@ Poly poly_decode(Poly message)
     //If there was an error, locate the faulty bit
     if(!poly_is_codeword(message))
     {
-        Poly res = poly_remainder(message);
+        Poly tmp = poly_remainder(message);
+        uint16_t p = poly_to_int(tmp);
+        #ifdef DEBUG
+            printf("Bit %d is faulty.\nCorrect codeword was: ", syndrome[p]);
+        #endif
 
-        while(i < N)
-        {
-            if(poly_equality(syndrome[i], res)) //We located the faulty bit
-            {
-                #ifdef DEBUG
-                    printf("Bit %d is faulty.\nCorrect codeword was: ", i);
-                #endif
+        //Correction
+        data_set(syndrome[p]-1, data_get(syndrome[p]-1, message)^1, message);
+        data_free(tmp);
 
-                //Correction
-                Poly tmp = data_generate(message->data_number);
-                data_set(i, 1, tmp);
-                poly_add(&message, tmp);
-                data_free(tmp);
-
-                #ifdef DEBUG
-                    poly_show(message);
-                #endif // DEBUG
-
-                i = N; //Exit the loop
-            }
-            else
-                i++;
-        }
+        #ifdef DEBUG
+            poly_show(message);
+        #endif // DEBUG
     }
 
     //Decode the message by getting rid of the M last bits
@@ -187,34 +221,74 @@ Poly poly_decode(Poly message)
     return decoded_message;
 }
 
-void make_syndrome()
-{
-    #ifdef DEBUG
-        printf("Building syndrome array...\n");
-    #endif
-    syndrome = malloc((N+1)*sizeof(Poly));
-    uint16_t i = 0;
-    for(i=0; i<=N; i++)
+
+
+
+    //void make_syndrome()
+    //{
+    //    #ifdef DEBUG
+    //        printf("Building syndrome array...\n");
+    //    #endif
+    //
+    //    syndrome = malloc((N+1)*sizeof(Poly));
+    //    uint16_t i = 0;
+    //    for(i=0; i<=N; i++)
+    //    {
+    //        Poly tmp = data_generate(N+1);
+    //        data_set(i, 1, tmp);
+    //        Poly div = poly_remainder(tmp);
+    //        syndrome[i] = data_copy(div);
+    //        #ifdef DEBUG
+    //            data_show(div);
+    //        #endif
+    //        data_free(div);
+    //        data_free(tmp);
+    //    }
+    //
+    //    #ifdef DEBUG
+    //        printf("Syndrome array built. \n\n\n\n\n");
+    //    #endif
+    //}
+    void make_syndrome()
     {
-        Poly tmp = data_generate(N+1);
-        data_set(i, 1, tmp);
-        Poly div = poly_remainder(tmp);
-        syndrome[i] = data_copy(div);
         #ifdef DEBUG
-            data_show(syndrome[i]);
+            printf("Building syndrome array...\n");
         #endif
+
+        uint16_t* s = calloc( (1 << (N-K)), sizeof(uint16_t));
+        //uint16_t s[(1 << (N - K))];
+        uint16_t i;
+        for(i=1; i<(1 << (N-K)); i++)
+        {
+            printf("%d, ", i);
+            Poly tmp = data_generate(N+1);
+            data_set(i-1, 1, tmp);
+            Poly div = poly_remainder(tmp);
+            printf("%d\n", poly_to_int(div));
+            #ifdef DEBUG
+                poly_show(div);
+            #endif
+
+            s[poly_to_int(div)] = i;
+            data_free(div);
+            data_free(tmp);
+        }
+        Poly tmp = data_generate(N+1);
+        Poly div = poly_remainder(tmp);
+        s[poly_to_int(div)] = 0;
         data_free(div);
         data_free(tmp);
+
+        for(i=0; i< (1 << (N-K)); i++)
+        {
+            printf("{%d}, ", s[i]);
+        }
+
+        #ifdef DEBUG
+            printf("Syndrome array built. \n\n\n\n\n");
+        #endif
     }
 
-    #ifdef DEBUG
-        printf("Syndrome array built. \n\n\n\n\n");
-    #endif
-}
-#endif
-
-
-#ifdef DEBUG
     void poly_show(struct Data* d)
     {
         uint16_t i;
@@ -243,4 +317,3 @@ void make_syndrome()
             }
         #endif // __AVR__
     }
-#endif
